@@ -24,11 +24,11 @@ RUN apt-get update && \
     touch /root/.Xauthority
 
 # Expose the ports used by the application
-EXPOSE 80
+EXPOSE 8080
 
 # Set VNC password
 RUN echo "test" | vncpasswd -f > ~/.vnc/passwd && \
     chmod 0600 ~/.vnc/passwd
 
 # RUN echo 'events {} http { server { listen 8080; server_name localhost; location /api { proxy_pass http://localhost:3000; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; } location /viewer { proxy_pass http://localhost:80; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; } location / { try_files $uri $uri/ =404; } location /websockify { proxy_pass http://localhost:5901; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade"; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header X-Forwarded-Proto $scheme; } } }' > /etc/nginx/nginx.conf
-CMD /opt/TurboVNC/bin/vncserver && websockify -D --web=/usr/share/novnc/ --cert=~/novnc.pem 80 localhost:5901 && tail -f /dev/null 
+CMD /opt/TurboVNC/bin/vncserver && websockify -D --web=/usr/share/novnc/ --cert=~/novnc.pem 8080 localhost:5901 && tail -f /dev/null 
