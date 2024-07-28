@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::process::Command;
 use std::time::Duration;
 use axum::{
-    extract::State,
-    routing::get,
+    extract::{State,Json},
+    routing::post,
     Router,
 };
 use axum::response::Redirect;
@@ -18,9 +18,21 @@ struct Server {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+struct RequestBody {
+    // Define the structure of your request body here
+    // Example:
+    password: String,
+    screen_width: String,
+    screen_height: String
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct ServerMap(HashMap<String, Server>);
 
-async fn index(State(server_map): State<Arc<Mutex<ServerMap>>>) -> Redirect {
+async fn index(
+    State(server_map): State<Arc<Mutex<ServerMap>>>,
+    Json(body): Json<RequestBody>,
+) -> Redirect {
     let server_map_arc = server_map.clone();
     let mut server_map = server_map.lock().await;
     for (server_name, server) in server_map.0.iter_mut() {
@@ -48,9 +60,13 @@ async fn index(State(server_map): State<Arc<Mutex<ServerMap>>>) -> Redirect {
                     .arg("build")
                     .arg("-t")
                     .arg("burner-browser")
-                    .arg(".")
                     .arg("--build-arg")
-                    .arg("PASSWORD=arpit")
+                    .arg(format!("PASSWORD={}", body.password))
+                    .arg("--build-arg")
+                    .arg(format!("SCREEN_WIDTH={}", body.screen_width))
+                    .arg("--build-arg")
+                    .arg(format!("SCREEN_HEIGHT={}", body.screen_height))
+                    .arg(".") // Ensure the build context is specified
                     .output();
 
                 match build_output {
@@ -182,7 +198,7 @@ async fn main() {
     let server_map = Arc::new(Mutex::new(server_map));
 
     let app = Router::new()
-        .route("/", get(index))
+        .route("/", post(index))
         .with_state(server_map);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
