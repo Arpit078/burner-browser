@@ -14,5 +14,5 @@ RUN mkdir -p ~/.vnc && \
 
 # Configure VNC server and websockify
 CMD /opt/TurboVNC/bin/vncserver :1 -geometry ${SCREEN_WIDTH}x${SCREEN_HEIGHT} -depth 24 && \
-    websockify --web=/usr/share/novnc/ --cert=~/novnc.pem 80 localhost:5901 && \
+    websockify -D --web=/usr/share/novnc/ --cert=~/novnc.pem 80 localhost:5901 && \
     tail -f /dev/null

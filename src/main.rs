@@ -181,7 +181,7 @@ async fn index(
                 }
             });
             tokio::time::sleep(Duration::from_secs(5)).await;
-            return Redirect::to(format!("http://localhost/{}", server_name).as_str());
+            return Redirect::to(format!("http://127.0.0.1/novnc/{}/vnc.html?resize=remote&path=novnc/{}/websockify", server_name,server_name).as_str());
         }
     }
     Redirect::to("/") // Handle case where all servers are busy
@@ -190,9 +190,10 @@ async fn index(
 #[tokio::main]
 async fn main() {
     let server_map = ServerMap(HashMap::from([
-        ("server1".to_string(), Server { busy: false, port: 5001 }),
-        ("server2".to_string(), Server { busy: false, port: 5002 }),
-        ("server3".to_string(), Server { busy: false, port: 5003 }),
+        ("server1".to_string(), Server { busy: false, port: 6081 }),
+        ("server2".to_string(), Server { busy: false, port: 6082 }),
+        ("server3".to_string(), Server { busy: false, port: 6083 })
+
     ]));
 
     let server_map = Arc::new(Mutex::new(server_map));
